@@ -2,9 +2,17 @@
 
 A GitHub Actions workflow that automatically pings your Supabase free-tier project every 6 days to prevent it from being paused due to inactivity.
 
+## Background
+
+If you're on Supabase's free tier, you may receive emails like this after 7 days of inactivity:
+
+> *Your project is not currently paused, but if it continues not to receive sufficient activity, it will be paused automatically. Once paused, you can unpause it from the dashboard within 90 days — beyond that, the project cannot be restored.*
+
+Manually logging in every few days just to keep a project alive is tedious. This repo automates that with a single GitHub Actions workflow — no extra server or cron job needed.
+
 ## How It Works
 
-Supabase pauses free projects after a period of inactivity. This workflow runs a `curl` request to the Supabase REST API on a schedule, keeping the project active automatically — no server required.
+This workflow sends a `curl` request to the Supabase REST API every 6 days, which counts as project activity and prevents automatic pausing.
 
 ## Setup
 
