@@ -90,6 +90,19 @@ If you see this message, you're all set. The workflow will now run automatically
 
 ---
 
+### Step 5 — Confirm the ping reached Supabase
+
+GitHub showing `HTTP 200` means the request was sent successfully. To double-check that Supabase actually received it:
+
+1. Go to [supabase.com](https://supabase.com) and open your project
+2. In the left sidebar, click **Logs** → **API Logs**
+3. Look for a recent `GET` request to `/rest/v1/` with status `200`
+4. The request should have been made around the same time the workflow ran
+
+If you see that entry, the ping was received by Supabase and your project activity has been updated.
+
+---
+
 ## Schedule
 
 ```
