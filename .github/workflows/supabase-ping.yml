@@ -2,7 +2,7 @@ name: Supabase Ping
 
 on:
   schedule:
-    # 每 6 天 UTC 00:00 執行一次
+    # Run every 6 days at UTC 00:00
     - cron: '0 0 */6 * *'
   workflow_dispatch:
 
