@@ -2,8 +2,8 @@
 
 A GitHub Actions workflow that automatically writes to your Supabase free-tier project twice a week to prevent it from being paused due to inactivity.
 
-> **This repo is for demonstration purposes only.**
-> Do not run the GitHub Action here — **fork this repo first**, then follow the setup guide in your own copy.
+> **This repo is a template for demonstration — no workflow is running here.**
+> Follow the setup guide below to use it in your own repo.
 
 ---
 
@@ -11,7 +11,7 @@ A GitHub Actions workflow that automatically writes to your Supabase free-tier p
 
 If you're on Supabase's free tier, you may receive emails like this after 7 days of inactivity:
 
-> *Your project SmallFan1017's Project has been paused. To optimize cloud resources, we automatically pause free-tier projects after 7 days of inactivity.*
+> *Your project has been paused. To optimize cloud resources, we automatically pause free-tier projects after 7 days of inactivity.*
 
 Manually logging in every few days just to keep a project alive is tedious. This repo automates that with a single GitHub Actions workflow — no extra server or cron job needed.
 
@@ -25,11 +25,11 @@ This workflow performs a real UPSERT to a dedicated `keepalive` table on a twice
 
 ## Step-by-Step Setup Guide
 
-### Step 1 — Fork this repo
+### Step 1 — Create your own repo and add the workflow
 
-Click **Fork** at the top right of this page to create a copy under your own GitHub account.
+Create a new GitHub repository, then create the file `.github/workflows/supabase-ping.yml` and paste in the contents of [`workflow-template/supabase-ping.yml`](workflow-template/supabase-ping.yml) from this repo.
 
-> All following steps should be done in **your forked repo**, not this one.
+Alternatively, **fork** this repo — the workflow file is already in place.
 
 ---
 
@@ -81,7 +81,7 @@ You need two values from your Supabase project.
 
 ### Step 4 — Add GitHub Secrets
 
-1. Go to your **forked** GitHub repo page
+1. Go to your GitHub repo page
 2. Click **Settings** (top navigation bar)
 3. In the left sidebar, click **Secrets and variables** → **Actions**
 4. Click **New repository secret**
