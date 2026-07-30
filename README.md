@@ -1,4 +1,4 @@
-# supabase-keep-alive
+# supabase-keep-alive-public
 
 A serverless keep-alive for Supabase free-tier projects: a scheduled GitHub Action that performs a real database write, with no server or third-party service involved.
 
