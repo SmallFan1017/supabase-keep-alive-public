@@ -1,9 +1,17 @@
 # supabase-keep-alive
 
-A GitHub Actions workflow that automatically writes to your Supabase free-tier project twice a week to prevent it from being paused due to inactivity.
+A serverless keep-alive for Supabase free-tier projects: a scheduled GitHub Action that performs a real database write, with no server or third-party service involved.
 
-> **This repo is a template for demonstration — no workflow is running here.**
-> Follow the setup guide below to use it in your own repo.
+> **Status:** archived as a reference implementation — see [Notes](#notes) for what happened in practice.
+>
+> **No workflow runs in this repo.** The workflow lives in [`workflow-template/`](workflow-template/) so that forks don't execute it automatically. Follow the setup guide below to use it in your own repo.
+
+## Highlights
+
+- **No infrastructure** — runs entirely on GitHub Actions cron
+- **Idempotent write** — UPSERTs a single-row `keepalive` table via PostgREST, so the ping is an actual database operation rather than a read against the API root
+- **Credentials stay out of the repo** — the service-role key lives in GitHub Encrypted Secrets and is never echoed to logs
+- **Fails loudly** — any non-2xx response is raised as a workflow error instead of passing silently
 
 ---
 
@@ -17,9 +25,9 @@ Manually logging in every few days just to keep a project alive is tedious. This
 
 ## How It Works
 
-Simply pinging the Supabase REST API root (`/rest/v1/`) is **not sufficient** — Supabase only counts actual database operations as activity.
+The workflow performs a real UPSERT against a dedicated `keepalive` table on a twice-weekly schedule, rather than a plain GET against the REST API root (`/rest/v1/`). The intent is for the ping to land as a database operation rather than an idle read.
 
-This workflow performs a real UPSERT to a dedicated `keepalive` table on a twice-weekly schedule, guaranteeing the project stays active.
+Read the [Notes](#notes) before relying on this — in my own use it did not turn out to be a dependable guarantee.
 
 ---
 
@@ -122,7 +130,7 @@ To verify the write actually reached the database:
 2. In the left sidebar, click **Table Editor** → `keepalive`
 3. Check that the `pinged_at` column shows a timestamp matching when your workflow ran
 
-If the timestamp is updated, the DB write succeeded and your project activity has been registered.
+If the timestamp is updated, the DB write reached the database. Note that this confirms the write itself — not that Supabase has counted it toward project activity. See [Notes](#notes).
 
 ---
 
@@ -138,6 +146,17 @@ Runs every **Monday and Thursday** at UTC 00:00. GitHub's scheduler may delay ex
 
 ---
 
+## Notes
+
+Two things make this pattern less dependable than it first looks, and are worth verifying before relying on it:
+
+- **GitHub silently disables scheduled workflows** on public repositories after 60 days without repository activity. A keep-alive that has quietly stopped looks identical to one that is working — there is no notification either way.
+- **A 2xx from PostgREST confirms the request was accepted**, not that the platform has registered the project as active. Confirm from the Supabase dashboard rather than from the workflow logs alone.
+
+In my own use the project was eventually paused regardless, so I turned the schedule off rather than keep a job running that I couldn't demonstrate was doing its job. The workflow is kept here as a reference for the GitHub Actions + Encrypted Secrets + PostgREST pattern, which is reusable on its own.
+
+---
+
 ## Troubleshooting
 
 | Issue | Cause | Fix |
@@ -145,4 +164,4 @@ Runs every **Monday and Thursday** at UTC 00:00. GitHub's scheduler may delay ex
 | HTTP 401 / 403 | Wrong or expired Service Role Key | Re-copy the key from Supabase Dashboard → API, then update the GitHub Secret |
 | HTTP 404 | `keepalive` table not created or incorrect URL | Run the setup SQL and ensure URL format is `https://<ref>.supabase.co` |
 | Workflow not running automatically | Repo inactive for 60+ days | Manually trigger once or push any commit to re-enable |
-| Project still paused | Previous approach used a GET ping, not a DB write | Ensure the `keepalive` table exists and the workflow uses POST/UPSERT |
+| Project paused despite successful runs | The write is reaching the DB but the project is being paused anyway | Confirm the scheduled runs actually fired for the whole period, then see [Notes](#notes) |
